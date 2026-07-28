@@ -42,6 +42,7 @@ const Args = struct {
     silent: bool = false,
     debug: bool = false,
     verbose: bool = false,
+    include_repos: ?[]const u8 = null,
     exclude_repos: ?[]const u8 = null,
     exclude_langs: ?[]const u8 = null,
     exclude_private: bool = false,
@@ -207,6 +208,12 @@ pub fn main(init: std.process.Init) !void {
         else
             null;
     defer if (exclude_repos) |exclude| allocator.free(exclude);
+    const include_repos =
+        if (args.include_repos) |include|
+            try splitList(allocator, include, " ,\t\r\n|\"'\x00")
+        else
+            null;
+    defer if (include_repos) |include| allocator.free(include);
     const exclude_langs =
         if (args.exclude_langs) |exclude|
             try splitList(allocator, exclude, ",\t\r\n|\"'\x00")
@@ -269,6 +276,11 @@ pub fn main(init: std.process.Init) !void {
     defer aggregate_stats.languages.deinit(allocator);
     defer aggregate_stats.language_colors.deinit(allocator);
     for (stats.repositories) |repository| {
+        if (include_repos) |include| {
+            if (include.len > 0 and !glob.matchAny(include, repository.name)) {
+                continue;
+            }
+        }
         if (glob.matchAny(exclude_repos orelse &.{}, repository.name) or
             (args.exclude_private and repository.private))
         {

@@ -132,11 +132,19 @@ and retrieve the images.
    1. Name your secret `ACCESS_TOKEN`.
    1. Paste your personal access token from step 1 into the large "Secret" text
       box.
-1. (Optional) Make other secrets for more configuration.
-   - To exclude some repositories from the aggregate statistics, add them
-     (separated by commas) to a secret called `EXCLUDE_REPOS`.
-     - To prevent your copy of this repository from showing up in your
-       statistics, add the name of your copy of the repo to this list.
+1. (Optional) Make other configuration settings.
+    - To include only repositories owned by your account and an organization,
+      create a repository variable called `INCLUDE_REPOS` with a comma-separated
+      value such as `your-login/*,your-organization/*`.
+      - This is an Actions variable, not a secret.
+      - The `*` glob matches repository names after the owner, so `owner/*`
+        includes all repositories owned by `owner`.
+      - Only repositories with detected commit contributions are available to
+        the filter, and the access token must be able to read private repos.
+    - To exclude some repositories from the aggregate statistics, add them
+      (separated by commas) to a secret called `EXCLUDE_REPOS`.
+      - To prevent your copy of this repository from showing up in your
+        statistics, add the name of your copy of the repo to this list.
    - To exclude some languages from the aggregate statistics, add them
      (separated by commas) to a secret called `EXCLUDE_LANGS`.
      - The languages are case insensitive, and can include spaces.
@@ -144,7 +152,8 @@ and retrieve the images.
        the CLI](#list-languages), or in the [list used by GitHub
        linguist](https://github.com/github-linguist/linguist/blob/537297cdae3ab05f8d5dd1c03627a5bd73707b19/lib/linguist/languages.yml)
        (which powers their language analysis on the back end).
-   - Lists for `EXCLUDE_REPOS` and `EXCLUDE_LANGS` can use globbing patterns.
+    - Lists for `INCLUDE_REPOS`, `EXCLUDE_REPOS`, and `EXCLUDE_LANGS` can use
+      globbing patterns.
      For example, to exclude all repos by user "jstrieb", add `jstrieb/*` to
      `EXCLUDE_REPOS`.
    - These can also be set directly in [the Actions
